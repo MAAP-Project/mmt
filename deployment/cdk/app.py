@@ -33,9 +33,7 @@ class MmtPipelineStack(Stack):
                          synthesizer=synthesizer, termination_protection=termination_protection,
                          analytics_reporting=analytics_reporting)
 
-        if settings.stage == "production":
-            branch = "master"
-        elif settings.stage == "dit": # todo: remove
+        if settings.stage == "dit":
             branch = "cdk-ecs-pipeline"
         else:
             branch = settings.stage
