@@ -21,7 +21,11 @@ For example, the `dit` branch will be deployed as the `dit` stage.
 
 The stage names MUST consist only of alphanumeric and `-` characters, as these are the only valid AWS Stack names.
 
-If you create a new stage name (e.g., one with your username in it for development), you must add a configuration for it to the `application.yml.maap`, `database.yml.maap`, and `services.yml` files.
+If you create a new stage name (e.g., one with your username in it for development), you must add a configuration for it to the `application.yml.maap`, `database.yml.maap`, and `services.yml` files. You must also create an environment file in `config/environments/`, e.g.:
+
+```bash
+cp config/environments/dit.rb config/environments/aimee.rb
+```
 
 More information about CDK Pipelines can be found [here](https://docs.aws.amazon.com/cdk/latest/guide/cdk_pipeline.html).
 
