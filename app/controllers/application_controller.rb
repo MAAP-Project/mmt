@@ -270,11 +270,13 @@ class ApplicationController < ActionController::Base
   end
 
   def token
-    if session[:login_method] == 'launchpad'
-      session[:launchpad_cookie]
-    elsif session[:login_method] == 'urs'
-      session[:access_token]
-    end
+    Rails.logger.info "in def token with token #{ENV['CMR_URS_PASSWORD']}"
+    ENV['CMR_URS_PASSWORD']
+    # if session[:login_method] == 'launchpad'
+    #   session[:launchpad_cookie]
+    # elsif session[:login_method] == 'urs'
+    #   session[:access_token]
+    # end
   end
   helper_method :token
 
