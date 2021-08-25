@@ -65,55 +65,55 @@ aws secretsmanager create-secret --name "/github.com/MAAP-Project/mmt" \
 Next, populate the per-stage parameters. These may already be populated, so first check in `AWS Console -> Systems Manager -> Parameter Store`. Set the `STAGE` variable to the appropriate stage.
 
 ```bash
-export STAGE=dit
+export MMT_STACK_STAGE=dit
 export AWS_REGION=us-west-2
 
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/EARTHDATA_PASSWORD" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/EARTHDATA_PASSWORD" \
     --value "<the password>"
 
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/CMR_URS_PASSWORD" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/CMR_URS_PASSWORD" \
     --value "<the password>"
 
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/SECRET_KEY_BASE" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/SECRET_KEY_BASE" \
     --value "<the secret key base>"
 
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/URS_PASSWORD" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/URS_PASSWORD" \
     --value "<the urs password>"
 
 aws ssm put-parameter \
     --type "String" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/EARTHDATA_USERNAME" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/EARTHDATA_USERNAME" \
     --value "devseed"
 
 aws ssm put-parameter \
     --type "String" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/CMR_ROOT" \
-    --value "cmr.${STAGE}.maap-project.org"
+    --name "/${MMT_STACK_STAGE}-maap-mmt/CMR_ROOT" \
+    --value "cmr.${MMT_STACK_STAGE}.maap-project.org"
 
 aws ssm put-parameter \
     --type "String" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/MMT_ROOT" \
-    --value "https://mmt.${STAGE}.maap-project.org"
+    --name "/${MMT_STACK_STAGE}-maap-mmt/MMT_ROOT" \
+    --value "https://mmt.${MMT_STACK_STAGE}.maap-project.org"
 
 aws ssm put-parameter \
     --type "String" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/CUMULUS_REST_API" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/CUMULUS_REST_API" \
     --value "https://1i4283wnch.execute-api.us-east-1.amazonaws.com/dev/"
 ```
 
