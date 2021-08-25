@@ -21,7 +21,9 @@ For example, the `dit` branch will be deployed as the `dit` stage.
 
 The stage names MUST consist only of alphanumeric and `-` characters, as these are the only valid AWS Stack names.
 
-If you create a new stage name (e.g., one with your username in it for development), you must add a configuration for it to the `application.yml.maap`, `database.yml.maap`, and `services.yml` files. You must also create an environment file in `config/environments/`, e.g.:
+If you create a new stage name (e.g., one with your username in it for development), you must add a configuration for it to the `application.yml.maap`, `database.yml.maap`, and `services.yml` files.
+
+You must also create an environment file in `config/environments/`, e.g.:
 
 ```bash
 cp config/environments/dit.rb config/environments/aimee.rb
@@ -140,7 +142,7 @@ export CDK_DEPLOY_ACCOUNT=$(aws sts get-caller-identity | jq .Account -r)
 export CDK_DEPLOY_REGION=us-west-2
 export MMT_STACK_STAGE="dit"
 
-$ npm run cdk deploy -- --require-approval never
+$ DOCKERHUB_USERNAME=foobar DOCKERHUB_PASSWORD=xxx npm run cdk deploy -- --require-approval never
 ```
 
 This pipeline will then deploy the application stack that creates a Postgres database, generates a docker image for the application, configures an ECS Task Definition and Service that uses that Task Definition, configures an application load balancer (ALB) to point to the ECS Service, and configures a custom DNS entry for the service.

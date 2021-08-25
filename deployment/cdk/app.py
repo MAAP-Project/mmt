@@ -56,6 +56,10 @@ class MmtPipelineStack(Stack):
             build_env_vars["MMT_STACK_TASK_CPU"]=codebuild.BuildEnvironmentVariable(value=settings.task_cpu)
         if settings.task_memory:
             build_env_vars["MMT_STACK_TASK_MEMORY"]=codebuild.BuildEnvironmentVariable(value=settings.task_memory)
+        if settings.dockerhub_username:
+            build_env_vars["DOCKERHUB_USERNAME"]=codebuild.BuildEnvironmentVariable(value=settings.dockerhub_username)
+        if settings.dockerhub_password:
+            build_env_vars["DOCKERHUB_PASSWORD"]=codebuild.BuildEnvironmentVariable(value=settings.dockerhub_password)
 
         pipeline = pipelines.CodePipeline(
             self, "Pipeline",
