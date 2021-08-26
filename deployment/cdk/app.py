@@ -20,6 +20,7 @@ from aws_cdk import (
     aws_ssm as ssm,
     pipelines as pipelines,
     aws_codebuild as codebuild,
+    aws_secretsmanager as secretsmanager,
 )
 
 settings = StackSettings()
@@ -102,6 +103,13 @@ class MmtPipelineStack(Stack):
                 ],
                 primary_output_directory="deployment/cdk.out"
             ),
+            docker_credentials=[pipelines.DockerCredential.docker_hub(
+                secret=secretsmanager.Secret.from_secret_name_v2(
+                    "dh-secret", secret_name="/hub.docker.com/MAAP-Project/mmt"),
+                secret_username_field="username",
+                secret_password_field="password"
+            )],
+            docker_enabled_for_synth=True,
         )
 
         pipeline.add_stage(
