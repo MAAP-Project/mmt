@@ -23,6 +23,11 @@ The stage names MUST consist only of alphanumeric and `-` characters, as these a
 
 If you create a new stage name (e.g., one with your username in it for development), you must add a configuration for it to the `application.yml.maap`, `database.yml.maap`, and `services.yml` files.
 
+You must also create an environment file in `config/environments/`, e.g.:
+
+```bash
+cp config/environments/dit.rb config/environments/aimee.rb
+
 More information about CDK Pipelines can be found [here](https://docs.aws.amazon.com/cdk/latest/guide/cdk_pipeline.html).
 
 Future work may be to replace the GitHub version 1 source action (personal token-based) to a version 2 source action(app-based) -- see [Update a GitHub version 1 source action to a GitHub version 2 source action](https://docs.aws.amazon.com/codepipeline/latest/userguide/update-github-action-connections.html).
