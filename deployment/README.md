@@ -52,7 +52,10 @@ $ npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AWS_REGION}
 
 3. Populate Secrets and Parameters
 
-First, check if this secret has been populated in AWS Secrets Manager. If not, create a GitHub Personal Access Token with scopes `repo` and `admin:repo_hook`. This value will be substituted for
+First, check if these secrets have been populated in AWS Secrets Manager. If not, create them as below.
+
+For the GitHub secret, create a GitHub Personal Access Token with scopes `repo` and `admin:repo_hook`. 
+This value will be substituted for
 the value of the `token` attribute (e.g., `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`) in the GitHub 
 credentials secret.
 
@@ -61,6 +64,15 @@ aws secretsmanager create-secret --name "/github.com/MAAP-Project/mmt" \
     --description "GitHub credentials for MAAP-Project" \
     --secret-string '{"token": "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"}'
 ```
+
+For the DockerHub secret, replace the username and password below the appropriate values.
+
+```
+aws secretsmanager create-secret --name "/hub.docker.com/MAAP-Project/mmt" \
+    --description "DockerHub credentials for MAAP-Project" \
+    --secret-string '{"username": "<THE USERNAME>", "password": "<THE PASSWORD>"}'
+```
+
 
 Next, populate the per-stage parameters. These may already be populated, so first check in `AWS Console -> Systems Manager -> Parameter Store`. Set the `STAGE` variable to the appropriate stage.
 
