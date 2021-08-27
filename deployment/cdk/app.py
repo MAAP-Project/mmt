@@ -105,7 +105,7 @@ class MmtPipelineStack(Stack):
             ),
             docker_credentials=[pipelines.DockerCredential.docker_hub(
                 secret=secretsmanager.Secret.from_secret_name_v2(
-                    "dh-secret", secret_name="/hub.docker.com/MAAP-Project/mmt"),
+                    self, "dh-secret", secret_name="/hub.docker.com/MAAP-Project/mmt"),
                 secret_username_field="username",
                 secret_password_field="password"
             )],
