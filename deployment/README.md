@@ -58,7 +58,10 @@ $ npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AWS_REGION}
 
 3. Populate Secrets and Parameters
 
-First, check if this secret has been populated in AWS Secrets Manager. If not, create a GitHub Personal Access Token with scopes `repo` and `admin:repo_hook`. This value will be substituted for
+First, check if these secrets have been populated in AWS Secrets Manager. If not, create them as below.
+
+For the GitHub secret, create a GitHub Personal Access Token with scopes `repo` and `admin:repo_hook`. 
+This value will be substituted for
 the value of the `token` attribute (e.g., `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`) in the GitHub 
 credentials secret.
 
@@ -68,58 +71,67 @@ aws secretsmanager create-secret --name "/github.com/MAAP-Project/mmt" \
     --secret-string '{"token": "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"}'
 ```
 
+For the DockerHub secret, replace the username and password below the appropriate values.
+
+```
+aws secretsmanager create-secret --name "/hub.docker.com/MAAP-Project/mmt" \
+    --description "DockerHub credentials for MAAP-Project" \
+    --secret-string '{"username": "<THE USERNAME>", "password": "<THE PASSWORD>"}'
+```
+
+
 Next, populate the per-stage parameters. These may already be populated, so first check in `AWS Console -> Systems Manager -> Parameter Store`. Set the `STAGE` variable to the appropriate stage.
 
 ```bash
-export STAGE=dit
+export MMT_STACK_STAGE=dit
 export AWS_REGION=us-west-2
 
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/EARTHDATA_PASSWORD" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/EARTHDATA_PASSWORD" \
     --value "<the password>"
 
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/CMR_URS_PASSWORD" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/CMR_URS_PASSWORD" \
     --value "<the password>"
 
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/SECRET_KEY_BASE" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/SECRET_KEY_BASE" \
     --value "<the secret key base>"
 
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/URS_PASSWORD" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/URS_PASSWORD" \
     --value "<the urs password>"
 
 aws ssm put-parameter \
     --type "String" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/EARTHDATA_USERNAME" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/EARTHDATA_USERNAME" \
     --value "devseed"
 
 aws ssm put-parameter \
     --type "String" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/CMR_ROOT" \
-    --value "cmr.${STAGE}.maap-project.org"
+    --name "/${MMT_STACK_STAGE}-maap-mmt/CMR_ROOT" \
+    --value "cmr.${MMT_STACK_STAGE}.maap-project.org"
 
 aws ssm put-parameter \
     --type "String" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/MMT_ROOT" \
-    --value "https://mmt.${STAGE}.maap-project.org"
+    --name "/${MMT_STACK_STAGE}-maap-mmt/MMT_ROOT" \
+    --value "https://mmt.${MMT_STACK_STAGE}.maap-project.org"
 
 aws ssm put-parameter \
     --type "String" \
     --overwrite \
-    --name "/${STAGE}-maap-mmt/CUMULUS_REST_API" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/CUMULUS_REST_API" \
     --value "https://1i4283wnch.execute-api.us-east-1.amazonaws.com/dev/"
 ```
 

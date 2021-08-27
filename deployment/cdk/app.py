@@ -20,6 +20,7 @@ from aws_cdk import (
     aws_ssm as ssm,
     pipelines as pipelines,
     aws_codebuild as codebuild,
+    aws_secretsmanager as secretsmanager,
 )
 
 settings = StackSettings()
@@ -41,31 +42,47 @@ class MmtPipelineStack(Stack):
         build_env_vars = {}
 
         if settings.name:
-            build_env_vars["MMT_STACK_NAME"] = codebuild.BuildEnvironmentVariable(value=settings.name)
+            build_env_vars["MMT_STACK_NAME"] = codebuild.BuildEnvironmentVariable(
+                value=settings.name)
         if settings.stage:
-            build_env_vars["MMT_STACK_STAGE"]=codebuild.BuildEnvironmentVariable(value=settings.stage)
+            build_env_vars["MMT_STACK_STAGE"] = codebuild.BuildEnvironmentVariable(
+                value=settings.stage)
         if settings.owner:
-            build_env_vars["MMT_STACK_OWNER"]=codebuild.BuildEnvironmentVariable(value=settings.owner)
+            build_env_vars["MMT_STACK_OWNER"] = codebuild.BuildEnvironmentVariable(
+                value=settings.owner)
         if settings.client:
-            build_env_vars["MMT_STACK_CLIENT"]=codebuild.BuildEnvironmentVariable(value=settings.client)
+            build_env_vars["MMT_STACK_CLIENT"] = codebuild.BuildEnvironmentVariable(
+                value=settings.client)
         if settings.min_ecs_instances:
-            build_env_vars["MMT_STACK_MIN_ECS_INSTANCES"]=codebuild.BuildEnvironmentVariable(value=settings.min_ecs_instances)
+            build_env_vars["MMT_STACK_MIN_ECS_INSTANCES"] = codebuild.BuildEnvironmentVariable(
+                value=settings.min_ecs_instances)
         if settings.max_ecs_instances:
-            build_env_vars["MMT_STACK_MAX_ECS_INSTANCES"]=codebuild.BuildEnvironmentVariable(value=settings.max_ecs_instances)
+            build_env_vars["MMT_STACK_MAX_ECS_INSTANCES"] = codebuild.BuildEnvironmentVariable(
+                value=settings.max_ecs_instances)
         if settings.task_cpu:
-            build_env_vars["MMT_STACK_TASK_CPU"]=codebuild.BuildEnvironmentVariable(value=settings.task_cpu)
+            build_env_vars["MMT_STACK_TASK_CPU"] = codebuild.BuildEnvironmentVariable(
+                value=settings.task_cpu)
         if settings.task_memory:
-            build_env_vars["MMT_STACK_TASK_MEMORY"]=codebuild.BuildEnvironmentVariable(value=settings.task_memory)
+            build_env_vars["MMT_STACK_TASK_MEMORY"] = codebuild.BuildEnvironmentVariable(
+                value=settings.task_memory)
 
         pipeline = pipelines.CodePipeline(
             self, "Pipeline",
             self_mutation=True,
             code_build_defaults=pipelines.CodeBuildOptions(
+                # add policy for runtime route53 lookups (route53 and assumerole to do that)
+                # https://docs.aws.amazon.com/cdk/api/latest/docs/pipelines-readme.html#context-lookups
                 role_policy=[
                     iam.PolicyStatement(
-                        actions=["route53:*"], resources=["*"]),
+                        actions=["route53:*"],
+                        resources=["*"]),
                     iam.PolicyStatement(
-                        actions=["sts:AssumeRole"], resources=["*"]),
+                        actions=["sts:AssumeRole"],
+                        resources=["*"],
+                        conditions={
+                            "StringEquals": {'iam:ResourceTag/aws-cdk:bootstrap-role': 'deploy'}
+                        },
+                    )
                 ],
                 build_environment=codebuild.BuildEnvironment(
                     environment_variables=build_env_vars)
@@ -86,6 +103,13 @@ class MmtPipelineStack(Stack):
                 ],
                 primary_output_directory="deployment/cdk.out"
             ),
+            docker_credentials=[pipelines.DockerCredential.docker_hub(
+                secret=secretsmanager.Secret.from_secret_name_v2(
+                    "dh-secret", secret_name="/hub.docker.com/MAAP-Project/mmt"),
+                secret_username_field="username",
+                secret_password_field="password"
+            )],
+            docker_enabled_for_synth=True,
         )
 
         pipeline.add_stage(
