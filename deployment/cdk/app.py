@@ -78,6 +78,7 @@ class MmtPipelineStack(Stack):
                     iam.PolicyStatement(
                         actions=["sts:AssumeRole"],
                         resources=["*"],
+                        # todo: re-add
                         # conditions={
                         #     "StringEquals": {'iam:ResourceTag/aws-cdk:bootstrap-role': 'deploy'}
                         # },
