@@ -98,7 +98,7 @@ class MmtPipelineStack(Stack):
                 ),
                 commands=[
                     "mkdir -p deployment/.cdk",
-                    "cp .cdk/cdk-docker-creds.json deployment/.cdk/cdk-docker-creds.json",
+                    "cp $HOME/.cdk/cdk-docker-creds.json deployment/.cdk/cdk-docker-creds.json",
                     "cd deployment",
                     "pip install -r requirements.txt",
                     "npm install -g aws-cdk",
