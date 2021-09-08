@@ -97,6 +97,8 @@ class MmtPipelineStack(Stack):
                         "/github.com/MAAP-Project/mmt", json_field="token")
                 ),
                 commands=[
+                    "mkdir -p deployment/.cdk",
+                    "cp .cdk/cdk-docker-creds.json deployment/.cdk/cdk-docker-creds.json",
                     "cd deployment",
                     "pip install -r requirements.txt",
                     "npm install -g aws-cdk",
