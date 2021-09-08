@@ -79,9 +79,10 @@ class MmtPipelineStack(Stack):
                     iam.PolicyStatement(
                         actions=["sts:AssumeRole"],
                         resources=["*"],
-                        conditions={
-                            "StringEquals": {'iam:ResourceTag/aws-cdk:bootstrap-role': 'deploy'}
-                        },
+                        # todo: re-add
+                        # conditions={
+                        #     "StringEquals": {'iam:ResourceTag/aws-cdk:bootstrap-role': 'deploy'}
+                        # },
                     )
                 ],
                 build_environment=codebuild.BuildEnvironment(
@@ -104,8 +105,8 @@ class MmtPipelineStack(Stack):
                 primary_output_directory="deployment/cdk.out"
             ),
             docker_credentials=[pipelines.DockerCredential.docker_hub(
-                secret=secretsmanager.Secret.from_secret_name_v2(
-                    self, "dh-secret", secret_name="/hub.docker.com/MAAP-Project/mmt"),
+                secret=secretsmanager.Secret.from_secret_name_v2(self,
+                    "dh-secret", secret_name="/hub.docker.com/MAAP-Project/mmt"),
                 secret_username_field="username",
                 secret_password_field="password"
             )],
