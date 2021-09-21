@@ -270,9 +270,10 @@ class MmtStack(core.Stack):
             public_load_balancer=True,
             protocol=elb.ApplicationProtocol.HTTPS,
             domain_name=f"mmt{hostname_part}.maap-project.org",
-            domain_zone=aws_route53.HostedZone.from_lookup(
+            domain_zone=aws_route53.HostedZone.from_hosted_zone_attributes(
                 self, f"{stack_id}-hosted-zone",
-                domain_name="maap-project.org"),
+                hosted_zone_id="/hostedzone/XXX",
+                zone_name="maap-project.org."),
             redirect_http=True,
             task_definition=task_definition
         )
