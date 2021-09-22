@@ -4,6 +4,8 @@ import os
 from os import path
 from typing import Any, List, Optional, Union
 
+from aws_cdk.aws_s3 import Bucket
+
 from config import StackSettings
 from aws_cdk.core import Stage, Stack
 
@@ -12,6 +14,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     aws_ecs as ecs,
     aws_rds as rds,
+    aws_s3 as s3,
     aws_route53,
     aws_ecs_patterns as ecs_patterns,
     aws_ecr_assets as ecr_assets,
@@ -22,6 +25,7 @@ from aws_cdk import (
     aws_codebuild as codebuild,
     aws_secretsmanager as secretsmanager,
 )
+from permission_boundary import PermissionBoundaryAspect
 
 settings = StackSettings()
 
@@ -115,6 +119,13 @@ class MmtPipelineStack(Stack):
             docker_enabled_for_synth=True,
         )
 
+        self.node.apply_aspect(
+            PermissionBoundaryAspect(
+                iam.ManagedPolicy.from_managed_policy_name(
+                    self, 'PermissionsBoundary', 'mcp-tenantOperator-AMI'
+                )
+            )
+        )
         pipeline.add_stage(
             MmtApp(self, id=f"{settings.stage}-mmt-app", stack_id=f"{settings.stage}-{settings.name}", env=env))
 
