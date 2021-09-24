@@ -117,6 +117,16 @@ aws ssm put-parameter \
 aws ssm put-parameter \
     --type "String" \
     --overwrite \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/CUMULUS_REST_API" \
+    --value "https://1i4283wnch.execute-api.us-east-1.amazonaws.com/dev/"
+```
+
+These two will use `ops` in the hostname value instead of MMT_STACK_STAGE in production:
+
+```
+aws ssm put-parameter \
+    --type "String" \
+    --overwrite \
     --name "/${MMT_STACK_STAGE}-maap-mmt/CMR_ROOT" \
     --value "cmr.${MMT_STACK_STAGE}.maap-project.org"
 
@@ -125,12 +135,6 @@ aws ssm put-parameter \
     --overwrite \
     --name "/${MMT_STACK_STAGE}-maap-mmt/MMT_ROOT" \
     --value "https://mmt.${MMT_STACK_STAGE}.maap-project.org"
-
-aws ssm put-parameter \
-    --type "String" \
-    --overwrite \
-    --name "/${MMT_STACK_STAGE}-maap-mmt/CUMULUS_REST_API" \
-    --value "https://1i4283wnch.execute-api.us-east-1.amazonaws.com/dev/"
 ```
 
 4. Generate CloudFormation template
