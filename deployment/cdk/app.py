@@ -258,7 +258,7 @@ class MmtStack(core.Stack):
         )
 
         if settings.stage == "production":
-            hostname_part = ""
+            hostname_part = ".ops"
         else:
             hostname_part = f".{settings.stage}"
 
