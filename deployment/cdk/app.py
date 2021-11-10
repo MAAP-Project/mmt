@@ -75,7 +75,7 @@ class MmtPipelineStack(Stack):
             )
             iam.PermissionsBoundary.of(self).apply(boundary)
 
-        if settings.artifact_bucket is not None:
+        if settings.artifact_bucket is not None and boundary is not None:
             artifact_bucket = s3.Bucket.from_bucket_name(self, 'artifact-bucket', settings.artifact_bucket)
             role = iam.Role(
                 self,
