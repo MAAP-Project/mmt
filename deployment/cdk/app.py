@@ -27,7 +27,6 @@ from aws_cdk import (
 
 settings = StackSettings()
 
-
 class MmtPipelineStack(Stack):
     def __init__(
         self, scope, id, *, description=None, env=None, stack_name=None, tags=None, synthesizer=None,
@@ -35,14 +34,6 @@ class MmtPipelineStack(Stack):
         super().__init__(scope, id, description=description, env=env, stack_name=stack_name, tags=tags,
                          synthesizer=synthesizer, termination_protection=termination_protection,
                          analytics_reporting=analytics_reporting)
-
-        if settings.permissions_boundary_name is not None:
-            boundary = iam.ManagedPolicy.from_managed_policy_name(
-                self,
-                'Boundary',
-                settings.permissions_boundary_name
-            )
-            iam.PermissionsBoundary.of(self).apply(boundary)
 
         if settings.stage == "dit":
             branch = "cdk-ecs-pipeline"
@@ -76,25 +67,34 @@ class MmtPipelineStack(Stack):
             build_env_vars["MMT_STACK_TASK_MEMORY"] = codebuild.BuildEnvironmentVariable(
                 value=settings.task_memory)
 
-        # if settings.artifact_bucket is not None:
-        #     artifact_bucket = s3.Bucket.from_bucket_name(self, 'artifact-bucket', settings.artifact_bucket)
-        #     # role = iam.Role(
-        #     #     self,
-        #     #     'cdk-pipeline-role',
-        #     #     permissions_boundary=boundary
-        #     # )
-        #     pipeline = codepipeline.Pipeline(
-        #         self,
-        #         'CDKPipeline',
-        #         artifact_bucket=artifact_bucket
-        #         # role=role
-        #     )
+        if settings.permissions_boundary_name is not None:
+            boundary = iam.ManagedPolicy.from_managed_policy_name(
+                self,
+                'Boundary',
+                settings.permissions_boundary_name
+            )
+            iam.PermissionsBoundary.of(self).apply(boundary)
+
+        if settings.artifact_bucket is not None:
+            artifact_bucket = s3.Bucket.from_bucket_name(self, 'artifact-bucket', settings.artifact_bucket)
+            role = iam.Role(
+                self,
+                'mmt-pipeline-role',
+                permissions_boundary=boundary,
+                assumed_by=iam.AccountRootPrincipal()
+            )
+            pipeline = codepipeline.Pipeline(
+                self,
+                'SourcePipeline',
+                artifact_bucket=artifact_bucket,
+                role=role
+            )
 
         cdk_pipeline = pipelines.CodePipeline(
             self,
             "Pipeline",
             self_mutation=True,
-            # code_pipeline=pipeline,
+            code_pipeline=pipeline,
             code_build_defaults=pipelines.CodeBuildOptions(
                 # add policy for runtime route53 lookups (route53 and assumerole to do that)
                 # https://docs.aws.amazon.com/cdk/api/latest/docs/pipelines-readme.html#context-lookups
@@ -143,7 +143,6 @@ class MmtPipelineStack(Stack):
 
         cdk_pipeline.add_stage(
             MmtApp(self, id=f"{settings.stage}-mmt-app", stack_id=f"{settings.stage}-{settings.name}", env=env))
-
 
 class MmtStack(core.Stack):
     """MMT ECS Fargate Stack."""
