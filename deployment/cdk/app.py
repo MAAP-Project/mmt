@@ -333,12 +333,21 @@ class MmtApp(Stage):
 
 app = core.App()
 
-MmtPipelineStack(
-    app, "PipelineStack",
-    stack_name=f"{settings.stage}-mmt-pipeline",
+# MmtPipelineStack(
+#     app, "PipelineStack",
+#     stack_name=f"{settings.stage}-mmt-pipeline",
+#     env=core.Environment(
+#         account=os.environ.get(
+#             "CDK_DEPLOY_ACCOUNT", os.environ["CDK_DEFAULT_ACCOUNT"]),
+#         region=os.environ.get("CDK_DEPLOY_REGION", os.environ["CDK_DEFAULT_REGION"]))
+# )
+
+MmtApp(
+    app,
+    "MmtStack",
+    stack_id=f"{settings.stage}-mmt",
     env=core.Environment(
-        account=os.environ.get(
-            "CDK_DEPLOY_ACCOUNT", os.environ["CDK_DEFAULT_ACCOUNT"]),
+        account=os.environ.get("CDK_DEPLOY_ACCOUNT", os.environ["CDK_DEFAULT_ACCOUNT"]),
         region=os.environ.get("CDK_DEPLOY_REGION", os.environ["CDK_DEFAULT_REGION"]))
 )
 
