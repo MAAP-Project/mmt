@@ -17,5 +17,6 @@ jobs:
       with:
         ruby-version: 2.7.2
         bundler-cache: true # runs `bundle install`
-    - run: bundle install --with development
-    - run: bundle-audit check
+    - run: bundle config set with 'development'
+    #- run: bundle-audit check
+    - run: rake bundle:audit
