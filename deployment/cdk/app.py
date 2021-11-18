@@ -306,8 +306,6 @@ class MmtStack(core.Stack):
             description="Allows traffic on port 80 from ALB",
         )
 
-
-# class MmtApp(Stage):
 class MmtApp(Stack):
     def __init__(self, scope, id, *, stack_name, env=None):
         super().__init__(scope, id, env=env)
