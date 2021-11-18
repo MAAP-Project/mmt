@@ -62,6 +62,7 @@ gem 'momentjs-rails' # js lib for dates
 gem 'pundit'
 
 gem 'nokogiri-diff', '~> 0.2.0' # for comparing xml documents
+gem 'nokogiri', '~> 1.12.5' #  nokogiri-diff depends on 1.5 which has a security vulnerability
 
 gem 'activerecord-import' # bulk insertion of data
 
@@ -110,6 +111,7 @@ group :development do
 
   # Keep that code clean, folks!
   gem 'rubocop'
+  gem 'bundler-audit'
 end
 
 group :test do

@@ -8,8 +8,8 @@ on:
     - cron:  '0 0 * * *' # daily
 
 jobs:
-  lint:
-    name: Lint
+  pre-commit-check:
+    name: Static analysis and test run
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -18,4 +18,4 @@ jobs:
         ruby-version: 2.7.2
         bundler-cache: true # runs `bundle install`
     - run: bundle install --with development
-    - run: bundle exec rubocop .
+    - run: bundle-audit check
