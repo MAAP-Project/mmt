@@ -16,7 +16,7 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7.2
-        bundler-cache: true # runs `bundle install`
+        bundler-cache: false
     - run: bundle config set with 'development'
-    #- run: bundle-audit check
+    - run: bundle install
     - run: bundle exec rake bundle:audit
