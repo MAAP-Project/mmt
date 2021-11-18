@@ -19,4 +19,4 @@ jobs:
         bundler-cache: true # runs `bundle install`
     - run: bundle config set with 'development'
     #- run: bundle-audit check
-    - run: rake bundle:audit
+    - run: bundle exec rake bundle:audit
