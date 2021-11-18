@@ -6,7 +6,9 @@ This deployment consists of a CDK stack to deploy the MMT application.
 
 ## Pre-requisites
 
-If you create a new stage name (e.g., one with your username in it for development), you must add a configuration for it to the `config/application.yml.maap`, `config/database.yml.maap`, and `config/services.yml` files.
+**Note:** You **do not** need to create `config/application.yml` or `config/database.yml` as that will be handled automatically by the `Dockerfile`.
+
+If you create a new stage name (e.g. one with your username in it for development), you must add a configuration for it to the `config/application.yml.maap`, `config/database.yml.maap`, and `config/services.yml` files.
 
 You must also create an environment file in `config/environments/`, e.g.:
 
@@ -106,6 +108,8 @@ This step isn't required, but can be useful to just validate that the configurat
 Synthesize the template to validate it basically works.
 
 ```bash
+export CDK_DEPLOY_ACCOUNT=$(aws sts get-caller-identity | jq .Account -r)
+export CDK_DEPLOY_REGION=$(aws configure get region)
 npm run cdk synth
 ```
 
