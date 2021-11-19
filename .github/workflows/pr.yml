@@ -20,3 +20,7 @@ jobs:
       - run: bundle config set with 'development'
       - run: bundle install
       - run: bundle-audit check
+      # don't run brakeman, since we're only forked from nasa/mmt
+      # - run: brakeman --no-pager
+      # too many warnings for rubocop to be useful
+      # - run: bundle exec rubocop .

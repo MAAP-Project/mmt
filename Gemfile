@@ -115,6 +115,7 @@ group :development do
   # Keep that code clean, folks!
   gem 'rubocop'
   gem 'bundler-audit'
+  gem 'brakeman'
 end
 
 group :test do
