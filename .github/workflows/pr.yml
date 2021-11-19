@@ -19,4 +19,4 @@ jobs:
         bundler-cache: false
     - run: bundle config set with 'development'
     - run: bundle install
-    - run: bundle-audit check
+    - run: bundle-audit check --ignore OSVDB-108664
