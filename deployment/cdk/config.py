@@ -21,6 +21,7 @@ class StackSettings(pydantic.BaseSettings):
     task_memory: int = 2048
 
     permissions_boundary_name: Optional[str]
+    vpc_id: Optional[str]
 
     class Config:
         """model config"""

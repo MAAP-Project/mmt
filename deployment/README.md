@@ -18,7 +18,7 @@ cp config/environments/dit.rb config/environments/aimee.rb
 
 ## Application deployment
 
-1. Initial setup
+### 1. Initial setup
 
 ```bash
 # Download forked mmt repo
@@ -30,7 +30,9 @@ $ pip install -r requirements.txt
 $ npm install
 ```
 
-2. CDK bootstrap. This step is only necessary once per AWS account / region combination.
+### 2. CDK bootstrap
+
+**NOTE: This step is only necessary once per AWS account / region combination.**
 
 ```bash
 AWS_REGION=us-west-2
@@ -38,7 +40,7 @@ AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq .Account -r)
 npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AWS_REGION}
 ```
 
-3. Populate Secrets and Parameters
+### 3. Populate Secrets and Parameters
 
 First, check if these secrets have been populated in AWS Secrets Manager (`AWS Console -> Systems Manager -> Parameter Store`). If not, create them as below.
 
@@ -85,7 +87,7 @@ aws ssm put-parameter \
     --value "https://1i4283wnch.execute-api.us-east-1.amazonaws.com/dev/"
 ```
 
-In the `production` enviroinment, these two will use no value for `MMT_STACK_STAGE` in the hostname value (e.g. `cmr.maap-project.org`):
+In the `production` environment, these two will use no value for `MMT_STACK_STAGE` in the hostname value (e.g. `cmr.maap-project.org`):
 
 ```bash
 aws ssm put-parameter \
@@ -101,7 +103,7 @@ aws ssm put-parameter \
     --value "https://mmt.${MMT_STACK_STAGE}.maap-project.org"
 ```
 
-1. Generate CloudFormation template
+### 4. Generate CloudFormation template
 
 This step isn't required, but can be useful to just validate that the configuration.
 
@@ -113,7 +115,7 @@ export CDK_DEPLOY_REGION=$(aws configure get region)
 npm run cdk synth
 ```
 
-5. Deploy the application
+### 5. Deploy the application
 
 This deploy step will deploy a CloudFormation Stack for the MMT application.
 
@@ -127,7 +129,7 @@ $ npm run cdk deploy -- --require-approval never
 
 The application stack creates a Postgres database, generates a docker image for the application, configures an ECS Task Definition and Service that uses that Task Definition, configures an application load balancer (ALB) to point to the ECS Service, and configures a custom DNS entry for the service.
 
-1. Undeploy (optional)
+### Undeploy (optional)
 
 ```bash
 export CDK_DEPLOY_ACCOUNT=$(aws sts get-caller-identity | jq .Account -r)

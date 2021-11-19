@@ -126,6 +126,7 @@ class MmtStack(core.Stack):
         self,
         scope: core.Construct,
         stack_id: str,
+        stack_name: str,
         *,
         cpu: Union[int, float] = 512,
         memory: Union[int, float] = 1024,
@@ -136,7 +137,7 @@ class MmtStack(core.Stack):
         **kwargs: Any,
     ) -> None:
         """Define stack."""
-        super().__init__(scope, stack_id, env=env, **kwargs)
+        super().__init__(scope, stack_id, env=env, stack_name=stack_name, **kwargs)
 
         if settings.permissions_boundary_name is not None:
             boundary = iam.ManagedPolicy.from_managed_policy_name(
@@ -148,10 +149,13 @@ class MmtStack(core.Stack):
 
         permissions = permissions or []
 
-        vpc = ec2.Vpc(self, f"{stack_id}-vpc", max_azs=2)
+        if settings.vpc_id is not None:
+            vpc = ec2.Vpc.from_lookup(self, 'VPC', vpc_id=settings.vpc_id)
+        else:
+            vpc = ec2.Vpc(self, f"{stack_name}-vpc", max_azs=2)
 
         db_admin_credentials_secret = rds.DatabaseSecret(
-            self, f"/{stack_id}/AdminDBCredentials", username="postgres")
+            self, f"/{stack_name}/AdminDBCredentials", username="postgres")
 
         core.CfnOutput(self, "AdminDBCredentialsSecretName",
                        value=db_admin_credentials_secret.secret_name)
@@ -160,16 +164,16 @@ class MmtStack(core.Stack):
 
         db_username = "mmt"
         db_credentials_secret = rds.DatabaseSecret(
-            self, f"/{stack_id}/AppDBCredentials", username=db_username)
+            self, f"/{stack_name}/AppDBCredentials", username=db_username)
 
         core.CfnOutput(self, "AppDBCredentialsSecretName",
                        value=db_credentials_secret.secret_name)
         core.CfnOutput(self, "AppDBCredentialsSecretARN",
                        value=db_credentials_secret.secret_arn)
 
-        ingress_sg = ec2.SecurityGroup(self, f"{stack_id}-rds-ingress",
+        ingress_sg = ec2.SecurityGroup(self, f"{stack_name}-rds-ingress",
                                        vpc=vpc,
-                                       security_group_name=f"{stack_id}-rds-ingress-sg",
+                                       security_group_name=f"{stack_name}-rds-ingress-sg",
                                        )
 
         ingress_sg.add_ingress_rule(
@@ -207,7 +211,7 @@ class MmtStack(core.Stack):
                        value=db.db_instance_endpoint_port)
 
         cluster = ecs.Cluster(
-            self, f"{stack_id}-cluster", vpc=vpc, enable_fargate_capacity_providers=True)
+            self, f"{stack_name}-cluster", vpc=vpc, enable_fargate_capacity_providers=True)
 
         core.CfnOutput(self, "ClusterArn", value=cluster.cluster_arn)
 
@@ -222,32 +226,32 @@ class MmtStack(core.Stack):
         task_env["DATABASE_USERNAME"] = db_username
 
         task_env["EARTHDATA_USERNAME"] = ssm.StringParameter.value_for_string_parameter(
-            self, f"/{stack_id}/EARTHDATA_USERNAME")
+            self, f"/{stack_name}/EARTHDATA_USERNAME")
         task_env["CMR_ROOT"] = ssm.StringParameter.value_for_string_parameter(
-            self, f"/{stack_id}/CMR_ROOT")
+            self, f"/{stack_name}/CMR_ROOT")
         task_env["MMT_ROOT"] = ssm.StringParameter.value_for_string_parameter(
-            self, f"/{stack_id}/MMT_ROOT")
+            self, f"/{stack_name}/MMT_ROOT")
         task_env["CUMULUS_REST_API"] = ssm.StringParameter.value_for_string_parameter(
-            self, f"/{stack_id}/CUMULUS_REST_API")
+            self, f"/{stack_name}/CUMULUS_REST_API")
 
         secret_earthdata_password = ssm.StringParameter.from_secure_string_parameter_attributes(
-            self, id=f"/{stack_id}/EARTHDATA_PASSWORD", parameter_name=f"/{stack_id}/EARTHDATA_PASSWORD", version=1)
+            self, id=f"/{stack_name}/EARTHDATA_PASSWORD", parameter_name=f"/{stack_name}/EARTHDATA_PASSWORD", version=1)
         secret_cmr_urs_password = ssm.StringParameter.from_secure_string_parameter_attributes(
-            self, id=f"/{stack_id}/CMR_URS_PASSWORD", parameter_name=f"/{stack_id}/CMR_URS_PASSWORD", version=1)
+            self, id=f"/{stack_name}/CMR_URS_PASSWORD", parameter_name=f"/{stack_name}/CMR_URS_PASSWORD", version=1)
         secret_secret_key_base = ssm.StringParameter.from_secure_string_parameter_attributes(
-            self, id=f"/{stack_id}/SECRET_KEY_BASE", parameter_name=f"/{stack_id}/SECRET_KEY_BASE", version=1)
+            self, id=f"/{stack_name}/SECRET_KEY_BASE", parameter_name=f"/{stack_name}/SECRET_KEY_BASE", version=1)
         secret_urs_password = ssm.StringParameter.from_secure_string_parameter_attributes(
-            self, id=f"/{stack_id}/URS_PASSWORD", parameter_name=f"/{stack_id}/URS_PASSWORD", version=1)
+            self, id=f"/{stack_name}/URS_PASSWORD", parameter_name=f"/{stack_name}/URS_PASSWORD", version=1)
 
-        task_definition = ecs.FargateTaskDefinition(self, f"{stack_id}-task-definition",
+        task_definition = ecs.FargateTaskDefinition(self, f"{stack_name}-task-definition",
                                                     cpu=cpu, memory_limit_mib=memory)
 
         task_definition.add_container(
-            f"{stack_id}-container",
+            f"{stack_name}-container",
             image=ecs.ContainerImage.from_docker_image_asset(
                 ecr_assets.DockerImageAsset(
                     self,
-                    f"{stack_id}-image",
+                    f"{stack_name}-image",
                     directory=path.abspath("../"),
                     file="deployment/Dockerfile"
                 )
@@ -263,7 +267,7 @@ class MmtStack(core.Stack):
                 "URS_PASSWORD": ecs.Secret.from_ssm_parameter(secret_urs_password),
             },
             environment=task_env,
-            logging=ecs.LogDrivers.aws_logs(stream_prefix=stack_id)
+            logging=ecs.LogDrivers.aws_logs(stream_prefix=stack_name)
         )
 
         # if settings.stage == "production":
@@ -273,7 +277,7 @@ class MmtStack(core.Stack):
 
         fargate_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
-            f"{stack_id}-service",
+            f"{stack_name}-service",
             cluster=cluster,
             desired_count=mincount,
             public_load_balancer=True,
@@ -281,7 +285,7 @@ class MmtStack(core.Stack):
             # protocol=elb.ApplicationProtocol.HTTPS,
             # domain_name=f"mmt{hostname_part}.maap-project.org",
             # domain_zone=aws_route53.HostedZone.from_lookup(
-            #     self, f"{stack_id}-hosted-zone",
+            #     self, f"{stack_name}-hosted-zone",
             #     domain_name="maap-project.org"),
             # redirect_http=True,
             task_definition=task_definition
@@ -354,7 +358,7 @@ app = core.App()
 MmtStack(
     app,
     "ApplicationStack",
-    stack_name=f"{settings.stage}-mmt-app",
+    f"{settings.stage}-maap-mmt",
     cpu=settings.task_cpu,
     memory=settings.task_memory,
     mincount=settings.min_ecs_instances,
