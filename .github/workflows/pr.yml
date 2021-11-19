@@ -5,18 +5,18 @@ on:
     branches:
       - master
   schedule:
-    - cron:  '0 0 * * *' # daily
+    - cron: '0 0 * * *' # daily
 
 jobs:
   pre-commit-check:
     name: Static analysis and test run
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 2.7.2
-        bundler-cache: false
-    - run: bundle config set with 'development'
-    - run: bundle install
-    - run: bundle-audit check --ignore OSVDB-108664
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.2
+          bundler-cache: false
+      - run: bundle config set with 'development'
+      - run: bundle install
+      - run: bundle-audit check
