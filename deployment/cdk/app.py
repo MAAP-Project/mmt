@@ -147,12 +147,13 @@ class MmtStack(core.Stack):
             )
             iam.PermissionsBoundary.of(self).apply(boundary)
 
-        permissions = permissions or []
-
         if settings.vpc_id is not None:
             vpc = ec2.Vpc.from_lookup(self, 'VPC', vpc_id=settings.vpc_id)
         else:
             vpc = ec2.Vpc(self, f"{stack_name}-vpc", max_azs=2)
+
+        app_service_port = 3000
+        permissions = permissions or []
 
         db_admin_credentials_secret = rds.DatabaseSecret(
             self, f"/{stack_name}/AdminDBCredentials", username="postgres")
@@ -221,6 +222,7 @@ class MmtStack(core.Stack):
         task_env["RAILS_ENV"] = settings.stage
         # to serve css, etc., assets
         task_env["RAILS_SERVE_STATIC_FILES"] = "true"
+        task_env["RAILS_LOG_TO_STDOUT"] = "true"
         task_env["DATABASE_HOST"] = db.db_instance_endpoint_address
         task_env["DATABASE_NAME"] = "mmt"
         task_env["DATABASE_USERNAME"] = db_username
@@ -257,7 +259,7 @@ class MmtStack(core.Stack):
                 )
             ),
             port_mappings=[ecs.PortMapping(
-                container_port=3000, host_port=3000)],
+                container_port=app_service_port, host_port=app_service_port)],
             secrets={
                 "POSTGRES_PASSWORD": ecs.Secret.from_secrets_manager(db_admin_credentials_secret, "password"),
                 "DATABASE_PASSWORD": ecs.Secret.from_secrets_manager(db_credentials_secret, "password"),
@@ -292,7 +294,10 @@ class MmtStack(core.Stack):
         )
 
         fargate_service.target_group.configure_health_check(
-            path="/", healthy_http_codes="200,301")
+            path="/",
+            healthy_http_codes="200,301",
+            port=f"{app_service_port}"
+        )
 
         for perm in permissions:
             fargate_service.task_definition.task_role.add_to_policy(perm)
