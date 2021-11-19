@@ -9,7 +9,7 @@ on:
 
 jobs:
   pre-commit-check:
-    name: Static analysis and test run
+    name: Pre-commit check to run bundle audit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
