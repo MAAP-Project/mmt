@@ -116,7 +116,7 @@ class MmtPipelineStack(Stack):
         )
 
         pipeline.add_stage(
-            MmtApp(self, id=f"{settings.stage}-mmt-app", stack_name=f"{settings.stage}-{settings.name}", env=env))
+            MmtApp(self, id=f"{settings.stage}-mmt-app", stack_id=f"{settings.stage}-{settings.name}", env=env))
 
 
 class MmtStack(core.Stack):
@@ -126,6 +126,7 @@ class MmtStack(core.Stack):
         self,
         scope: core.Construct,
         stack_id: str,
+        *,
         cpu: Union[int, float] = 512,
         memory: Union[int, float] = 1024,
         mincount: int = 1,
@@ -135,7 +136,15 @@ class MmtStack(core.Stack):
         **kwargs: Any,
     ) -> None:
         """Define stack."""
-        super().__init__(scope, stack_id, env=env, *kwargs)
+        super().__init__(scope, stack_id, env=env, **kwargs)
+
+        if settings.permissions_boundary_name is not None:
+            boundary = iam.ManagedPolicy.from_managed_policy_name(
+                self,
+                'Boundary',
+                settings.permissions_boundary_name
+            )
+            iam.PermissionsBoundary.of(self).apply(boundary)
 
         permissions = permissions or []
 
@@ -307,11 +316,11 @@ class MmtStack(core.Stack):
         )
 
 class MmtApp(Stage):
-    def __init__(self, scope, id, *, stack_id, env=None):
-        super().__init__(scope, id, stack_name=stack_name, env=env)
+    def __init__(self, scope, id, *, stack_id, env=None, outdir=None):
+        super().__init__(scope, id, env=env,outdir=outdir)
 
         for key, value in {
-            "Project": stack_name,
+            "Project": stack_id,
             "Stack": settings.stage,
             "Owner": settings.owner,
             "Client": settings.client,
@@ -319,17 +328,9 @@ class MmtApp(Stage):
             if value:
                 core.Tags.of(self).add(key, value)
 
-        if settings.permissions_boundary_name is not None:
-            boundary = iam.ManagedPolicy.from_managed_policy_name(
-                self,
-                'Boundary',
-                settings.permissions_boundary_name
-            )
-            iam.PermissionsBoundary.of(self).apply(boundary)
-
         MmtStack(
             scope=self,
-            stack_name=stack_name,
+            stack_id=stack_id,
             cpu=settings.task_cpu,
             memory=settings.task_memory,
             mincount=settings.min_ecs_instances,
@@ -352,8 +353,13 @@ app = core.App()
 
 MmtStack(
     app,
-    "MmtStack",
+    "ApplicationStack",
     stack_name=f"{settings.stage}-mmt-app",
+    cpu=settings.task_cpu,
+    memory=settings.task_memory,
+    mincount=settings.min_ecs_instances,
+    maxcount=settings.max_ecs_instances,
+    permissions=[],
     env=core.Environment(
         account=os.environ.get("CDK_DEPLOY_ACCOUNT", os.environ["CDK_DEFAULT_ACCOUNT"]),
         region=os.environ.get("CDK_DEPLOY_REGION", os.environ["CDK_DEFAULT_REGION"]))
