@@ -12,7 +12,6 @@ from aws_cdk import (
     aws_ec2 as ec2,
     aws_ecs as ecs,
     aws_rds as rds,
-    aws_route53,
     aws_ecs_patterns as ecs_patterns,
     aws_ecr_assets as ecr_assets,
     aws_iam as iam,
@@ -21,6 +20,7 @@ from aws_cdk import (
     pipelines as pipelines,
     aws_codebuild as codebuild,
     aws_secretsmanager as secretsmanager,
+    aws_certificatemanager as certificatemanager,
 )
 
 settings = StackSettings()
@@ -272,25 +272,39 @@ class MmtStack(core.Stack):
             logging=ecs.LogDrivers.aws_logs(stream_prefix=stack_name)
         )
 
-        # if settings.stage == "production":
-        #     hostname_part = ".ops"
-        # else:
-        #     hostname_part = f".{settings.stage}"
+        load_balancer = elb.ApplicationLoadBalancer(self,
+            "mmt-lb",
+            vpc=vpc,
+            internet_facing=True
+        )
+
+        http_listener=load_balancer.add_listener('HttpListener',
+            protocol=elb.ApplicationProtocol.HTTP,
+            port=80
+        )
+        http_listener.add_redirect_response(
+            'HttpRedirect',
+            status_code='HTTP_301',
+            protocol='HTTPS',
+            port="443"
+        )
+
+        if settings.certificate_arn is not None and settings.certificate_arn != '':
+            certificate=certificatemanager.Certificate.from_certificate_arn(
+                self,
+                f"mmt-{settings.stage}-certificate",
+                settings.certificate_arn
+            )
 
         fargate_service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
             f"{stack_name}-service",
             cluster=cluster,
             desired_count=mincount,
-            public_load_balancer=True,
-            protocol=elb.ApplicationProtocol.HTTP,
-            # protocol=elb.ApplicationProtocol.HTTPS,
-            # domain_name=f"mmt{hostname_part}.maap-project.org",
-            # domain_zone=aws_route53.HostedZone.from_lookup(
-            #     self, f"{stack_name}-hosted-zone",
-            #     domain_name="maap-project.org"),
-            # redirect_http=True,
-            task_definition=task_definition
+            task_definition=task_definition,
+            load_balancer=load_balancer,
+            listener_port=443,
+            certificate=certificate
         )
 
         fargate_service.target_group.configure_health_check(

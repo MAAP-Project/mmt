@@ -22,6 +22,7 @@ class StackSettings(pydantic.BaseSettings):
 
     permissions_boundary_name: Optional[str]
     vpc_id: Optional[str]
+    certificate_arn: Optional[str]
 
     class Config:
         """model config"""
