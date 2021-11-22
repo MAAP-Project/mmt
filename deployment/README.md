@@ -103,6 +103,26 @@ aws ssm put-parameter \
     --value "https://mmt.${MMT_STACK_STAGE}.maap-project.org"
 ```
 
+### 3. Set deployment configuration
+
+Deployment can be customized using any of the settings defined in `app/config.py`.
+
+To set values for these settings, create an `.env` file and add a line for the value of
+each setting (with the setting name prefixed by `MMT_STACK_`):
+
+```env
+MMT_STACK_certificate_arn="arn:aws:acm:us-west-2:12345:certificate/abc123"
+```
+
+#### Optional MCP config
+
+For deploying to MCP environments managed by NASA, you will need to specify values in `.env` for the `permissions_boundary_name` and `vpc_id` that should be used:
+
+```env
+MMT_STACK_permissions_boundary_name="example-permission-boundary"
+MMT_STACK_vpc_id="vpc-12345"
+```
+
 ### 4. Generate CloudFormation template
 
 This step isn't required, but can be useful to just validate that the configuration.
