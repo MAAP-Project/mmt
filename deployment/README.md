@@ -46,12 +46,12 @@ npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AWS_REGION}
 
 Make sure to use the correct URS environment for your stage:
 
-- `dit`, `uat`: <https://uat.urs.earthdata.nasa.gov/>
 - `production`: <https://urs.earthdata.nasa.gov/>
+- all other stages: <https://uat.urs.earthdata.nasa.gov/>
 
 #### Application creator permissions
 
-You need application creator permissions for Earthdata login in order to create and manage applications. You can request this permission using the support form on the Earthdata login homepage (e.g. <https://urs.earthdata.nasa.gov/>) when you click "Earthdata Support" near the botom of the page.
+You need application creator permissions for Earthdata login in order to create and manage applications. You can request this permission using the support form on the Earthdata login homepage (e.g. <https://urs.earthdata.nasa.gov/>) by clicking "Earthdata Support" near the botom of the page.
 
 ### Creating an application
 
