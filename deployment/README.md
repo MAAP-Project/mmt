@@ -172,7 +172,7 @@ $ npm run cdk deploy -- --require-approval never
 
 The application stack creates a Postgres database, generates a docker image for the application, configures an ECS Task Definition and Service that uses that Task Definition, configures an application load balancer (ALB) to point to the ECS Service, and configures a custom DNS entry for the service.
 
-### 6. Register redirects with Earthdata application
+### 6. Register redirect URIs with Earthdata application
 
 For Earthdata authentication to work with MMT, the following URIs need to be added to the Redirect URIs list:
 
