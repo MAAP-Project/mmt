@@ -24,7 +24,7 @@ cp config/environments/dit.rb config/environments/aimee.rb
 # Download forked mmt repo
 $ git clone https://github.com/MAAP-Project/mmt
 # install cdk dependencies
-$ cd deployment/mmt
+$ cd mmt/deployment
 # create python venv and activate
 $ pip install -r requirements.txt
 $ npm install
