@@ -40,6 +40,25 @@ AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq .Account -r)
 npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AWS_REGION}
 ```
 
+### 3. Create Earthdata application
+
+**NOTE: This step is only necessary one per deployment stage (e.g. `dit`, `uat`, `production`).**
+
+Make sure to use the correct URS environment for your stage:
+
+- `dit`, `uat`: <https://uat.urs.earthdata.nasa.gov/>
+- `production`: <https://urs.earthdata.nasa.gov/>
+
+#### Application creator permissions
+
+You need application creator permissions for Earthdata login in order to create and manage applications. You can request this permission using the support form on the Earthdata login homepage (e.g. <https://urs.earthdata.nasa.gov/>) when you click "Earthdata Support" near the botom of the page.
+
+### Creating an application
+
+Once you have logged into URS, navigate to `Applications > My Applications` and click the "Create a new application" button. Fill in the relevant details and make sure to save the application password that you used so that you can use it to configure your deployment.
+
+Once you have created the application, make sure to note the "Client ID" to use for configuring your deployment.
+
 ### 3. Populate Secrets and Parameters
 
 First, check if these secrets have been populated in AWS Secrets Manager (`AWS Console -> Systems Manager -> Parameter Store`). If not, create them as below.
@@ -50,8 +69,8 @@ For context, these are the expected values for the parameters:
 
 - `CMR_URS_PASSWORD`: The authorization token used for communicating with CMR
 - `SECRET_KEY_BASE`: String of random characters (at least 30 characters) used for verifying integrity of tokens
-- `URS_PASSWORD`: Password for the Earthdata application integrated with MMT (identifiedy by `URS_USERNAME`)
-- `URS_USERNAME`: ID for the Earthdata application integrated with MMT
+- `URS_PASSWORD`: Password for the Earthdata application integrated with MMT (identified by `URS_USERNAME`, [possibly created in previous step](#creating-an-application))
+- `URS_USERNAME`: Client ID for the Earthdata application integrated with MMT ([possibly created in previous step](#creating-an-application))
 - `CUMULUS_REST_API`: URL of API gateway for Cumulus deployment
 - `CMR_ROOT`: Root of URL for CMR in this environment (e.g. `cmr.dit.maap-project.org`)
 - `MMT_ROOT`: Root of URL for MMT in this environment (e.g. `mmt.dit.maap-project.org`)
@@ -152,6 +171,19 @@ $ npm run cdk deploy -- --require-approval never
 ```
 
 The application stack creates a Postgres database, generates a docker image for the application, configures an ECS Task Definition and Service that uses that Task Definition, configures an application load balancer (ALB) to point to the ECS Service, and configures a custom DNS entry for the service.
+
+### 6. Register redirects with Earthdata application
+
+For Earthdata authentication to work with MMT, the following URIs need to be added to the Redirect URIs list:
+
+- <https://MMT_ROOT/urs_association_callback>
+- <https://MMT_ROOT/urs_login_callback>
+
+where `MMT_ROOT` is the domain name for MMT deployment (e.g. `mmt.maap-project.org`).
+
+You can manage redirect URIs by logging in to the appropriate URS environment then going to `Applications -> My Applications -> Edit (click edit button for your application) -> Manage -> Redirect Uris`. The page for adding redirect URIs and the expected additions will look something like:
+
+![image](https://user-images.githubusercontent.com/42478387/123997171-17114500-d99e-11eb-8d3d-0318593e9eb8.png)
 
 ### Tear down deployment (optional)
 
