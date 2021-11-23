@@ -44,7 +44,7 @@ npm run cdk bootstrap aws://${AWS_ACCOUNT_ID}/${AWS_REGION}
 
 First, check if these secrets have been populated in AWS Secrets Manager (`AWS Console -> Systems Manager -> Parameter Store`). If not, create them as below.
 
-Set the `STAGE` variable to the appropriate stage.
+Set the `MMT_STACK_STAGE` variable to the appropriate stage.
 
 ```bash
 export MMT_STACK_STAGE=dit
@@ -75,7 +75,7 @@ aws ssm put-parameter \
     --value "https://1i4283wnch.execute-api.us-east-1.amazonaws.com/dev/"
 ```
 
-In the `production` environment, these two will use no value for `MMT_STACK_STAGE` in the hostname value (e.g. `cmr.maap-project.org`):
+In the `production` environment, there may be no value for `MMT_STACK_STAGE` in the hostname value (e.g. `cmr.maap-project.org`) or the value may be `ops` (e.g. `mmt.ops.maap-project.org`). Consult a MAAP team member to determine the appropriate value.
 
 ```bash
 aws ssm put-parameter \
@@ -102,7 +102,7 @@ each setting (with the setting name prefixed by `MMT_STACK_`):
 MMT_STACK_certificate_arn="arn:aws:acm:us-west-2:12345:certificate/abc123"
 ```
 
-#### Optional MCP config
+#### Optional config for Mission Cloud Platform (MCP) deployments
 
 For deploying to MCP environments managed by NASA, you will need to specify values in `.env` for the `permissions_boundary_name` and `vpc_id` that should be used:
 
@@ -137,7 +137,7 @@ $ npm run cdk deploy -- --require-approval never
 
 The application stack creates a Postgres database, generates a docker image for the application, configures an ECS Task Definition and Service that uses that Task Definition, configures an application load balancer (ALB) to point to the ECS Service, and configures a custom DNS entry for the service.
 
-### Undeploy (optional)
+### Tear down deployment (optional)
 
 ```bash
 export CDK_DEPLOY_ACCOUNT=$(aws sts get-caller-identity | jq .Account -r)

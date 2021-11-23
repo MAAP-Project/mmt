@@ -150,7 +150,7 @@ class MmtStack(core.Stack):
         if settings.vpc_id is not None:
             vpc = ec2.Vpc.from_lookup(self, 'VPC', vpc_id=settings.vpc_id)
         else:
-            vpc = ec2.Vpc(self, f"{stack_name}-vpc", max_azs=2)
+            vpc = ec2.Vpc(self, f"{stack_name}-vpc")
 
         app_service_port = 3000
         permissions = permissions or []
