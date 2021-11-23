@@ -53,12 +53,6 @@ export AWS_REGION=us-west-2
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${MMT_STACK_STAGE}-maap-mmt/EARTHDATA_PASSWORD" \
-    --value "<the password>"
-
-aws ssm put-parameter \
-    --type "SecureString" \
-    --overwrite \
     --name "/${MMT_STACK_STAGE}-maap-mmt/CMR_URS_PASSWORD" \
     --value "<the password>"
 
@@ -73,12 +67,6 @@ aws ssm put-parameter \
     --overwrite \
     --name "/${MMT_STACK_STAGE}-maap-mmt/URS_PASSWORD" \
     --value "<the urs password>"
-
-aws ssm put-parameter \
-    --type "String" \
-    --overwrite \
-    --name "/${MMT_STACK_STAGE}-maap-mmt/EARTHDATA_USERNAME" \
-    --value "devseed"
 
 aws ssm put-parameter \
     --type "String" \

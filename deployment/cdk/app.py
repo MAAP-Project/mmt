@@ -227,8 +227,6 @@ class MmtStack(core.Stack):
         task_env["DATABASE_NAME"] = "mmt"
         task_env["DATABASE_USERNAME"] = db_username
 
-        task_env["EARTHDATA_USERNAME"] = ssm.StringParameter.value_for_string_parameter(
-            self, f"/{stack_name}/EARTHDATA_USERNAME")
         task_env["CMR_ROOT"] = ssm.StringParameter.value_for_string_parameter(
             self, f"/{stack_name}/CMR_ROOT")
         task_env["MMT_ROOT"] = ssm.StringParameter.value_for_string_parameter(
@@ -236,8 +234,6 @@ class MmtStack(core.Stack):
         task_env["CUMULUS_REST_API"] = ssm.StringParameter.value_for_string_parameter(
             self, f"/{stack_name}/CUMULUS_REST_API")
 
-        secret_earthdata_password = ssm.StringParameter.from_secure_string_parameter_attributes(
-            self, id=f"/{stack_name}/EARTHDATA_PASSWORD", parameter_name=f"/{stack_name}/EARTHDATA_PASSWORD", version=1)
         secret_cmr_urs_password = ssm.StringParameter.from_secure_string_parameter_attributes(
             self, id=f"/{stack_name}/CMR_URS_PASSWORD", parameter_name=f"/{stack_name}/CMR_URS_PASSWORD", version=1)
         secret_secret_key_base = ssm.StringParameter.from_secure_string_parameter_attributes(
@@ -263,7 +259,6 @@ class MmtStack(core.Stack):
             secrets={
                 "POSTGRES_PASSWORD": ecs.Secret.from_secrets_manager(db_admin_credentials_secret, "password"),
                 "DATABASE_PASSWORD": ecs.Secret.from_secrets_manager(db_credentials_secret, "password"),
-                "EARTHDATA_PASSWORD": ecs.Secret.from_ssm_parameter(secret_earthdata_password),
                 "CMR_URS_PASSWORD": ecs.Secret.from_ssm_parameter(secret_cmr_urs_password),
                 "SECRET_KEY_BASE": ecs.Secret.from_ssm_parameter(secret_secret_key_base),
                 "URS_PASSWORD": ecs.Secret.from_ssm_parameter(secret_urs_password),
