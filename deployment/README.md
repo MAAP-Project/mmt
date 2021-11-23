@@ -46,6 +46,16 @@ First, check if these secrets have been populated in AWS Secrets Manager (`AWS C
 
 Set the `MMT_STACK_STAGE` variable to the appropriate stage.
 
+For context, these are the expected values for the parameters:
+
+- `CMR_URS_PASSWORD`: The authorization token used for communicating with CMR
+- `SECRET_KEY_BASE`: String of random characters (at least 30 characters) used for verifying integrity of tokens
+- `URS_PASSWORD`: Password for the Earthdata application integrated with MMT (identifiedy by `URS_USERNAME`)
+- `URS_USERNAME`: ID for the Earthdata application integrated with MMT
+- `CUMULUS_REST_API`: URL of API gateway for Cumulus deployment
+- `CMR_ROOT`: Root of URL for CMR in this environment (e.g. `cmr.dit.maap-project.org`)
+- `MMT_ROOT`: Root of URL for MMT in this environment (e.g. `mmt.dit.maap-project.org`)
+
 ```bash
 export MMT_STACK_STAGE=dit
 export AWS_REGION=us-west-2
@@ -66,7 +76,13 @@ aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
     --name "/${MMT_STACK_STAGE}-maap-mmt/URS_PASSWORD" \
-    --value "<the urs password>"
+    --value "<the URS application password>"
+
+aws ssm put-parameter \
+    --type "SecureString" \
+    --overwrite \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/URS_USERNAME" \
+    --value "<the URS application ID>"
 
 aws ssm put-parameter \
     --type "String" \

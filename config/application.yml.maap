@@ -38,7 +38,7 @@ sit:
 
 production:
   <<: *defaults
-  urs_username: 'd_cIQlKq6Bh35tlDqnbUUQ'
+  urs_username: <%= ENV['URS_USERNAME'] %>
 
 dit:
   <<: *defaults

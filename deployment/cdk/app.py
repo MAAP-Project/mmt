@@ -238,6 +238,8 @@ class MmtStack(core.Stack):
             self, id=f"/{stack_name}/CMR_URS_PASSWORD", parameter_name=f"/{stack_name}/CMR_URS_PASSWORD", version=1)
         secret_secret_key_base = ssm.StringParameter.from_secure_string_parameter_attributes(
             self, id=f"/{stack_name}/SECRET_KEY_BASE", parameter_name=f"/{stack_name}/SECRET_KEY_BASE", version=1)
+        secret_urs_username = ssm.StringParameter.from_secure_string_parameter_attributes(
+            self, id=f"/{stack_name}/URS_USERNAME", parameter_name=f"/{stack_name}/URS_USERNAME", version=1)
         secret_urs_password = ssm.StringParameter.from_secure_string_parameter_attributes(
             self, id=f"/{stack_name}/URS_PASSWORD", parameter_name=f"/{stack_name}/URS_PASSWORD", version=1)
 
@@ -262,6 +264,7 @@ class MmtStack(core.Stack):
                 "CMR_URS_PASSWORD": ecs.Secret.from_ssm_parameter(secret_cmr_urs_password),
                 "SECRET_KEY_BASE": ecs.Secret.from_ssm_parameter(secret_secret_key_base),
                 "URS_PASSWORD": ecs.Secret.from_ssm_parameter(secret_urs_password),
+                "URS_USERNAME": ecs.Secret.from_ssm_parameter(secret_urs_username),
             },
             environment=task_env,
             logging=ecs.LogDrivers.aws_logs(stream_prefix=stack_name)
