@@ -87,7 +87,6 @@ GEM
       momentjs-rails (>= 2.8.1)
     bourbon (7.0.0)
       thor (~> 1.0)
-    brakeman (5.1.2)
     breadcrumbs_on_rails (4.1.0)
       railties (>= 5.0)
     browser (5.3.1)
@@ -366,7 +365,6 @@ DEPENDENCIES
   binding_of_caller
   bootstrap3-datetimepicker-rails
   bourbon
-  brakeman
   breadcrumbs_on_rails
   browser
   builder
