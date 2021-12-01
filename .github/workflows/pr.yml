@@ -1,0 +1,26 @@
+name: PR check
+
+on:
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: '2 56 * * *' # daily
+
+jobs:
+  pre-commit-check:
+    name: Pre-commit check to run bundle audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.2
+          bundler-cache: true
+      - run: bundle config set with 'development'
+      - run: bundle install
+      - run: bundle-audit check
+      # don't run brakeman, since we're only forked from nasa/mmt
+      # - run: brakeman --no-pager
+      # too many warnings for rubocop to be useful
+      # - run: bundle exec rubocop .
