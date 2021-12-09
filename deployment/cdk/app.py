@@ -34,10 +34,7 @@ class MmtPipelineStack(Stack):
                          synthesizer=synthesizer, termination_protection=termination_protection,
                          analytics_reporting=analytics_reporting)
 
-        if settings.stage == "dit":
-            branch = "cdk-ecs-pipeline"
-        else:
-            branch = settings.stage
+        branch = settings.stage
 
         build_env_vars = {}
 
@@ -65,6 +62,15 @@ class MmtPipelineStack(Stack):
         if settings.task_memory:
             build_env_vars["MMT_STACK_TASK_MEMORY"] = codebuild.BuildEnvironmentVariable(
                 value=settings.task_memory)
+        if settings.deployment_strategy:
+            build_env_vars["MMT_STACK_deployment_strategy"] = codebuild.BuildEnvironmentVariable(
+                value=settings.deployment_strategy)
+        if settings.codestar_connection_arn:
+            build_env_vars["MMT_STACK_codestar_connection_arn"] = codebuild.BuildEnvironmentVariable(
+                value=settings.codestar_connection_arn)
+        if settings.certificate_arn:
+            build_env_vars["MMT_STACK_certificate_arn"] = codebuild.BuildEnvironmentVariable(
+                value=settings.certificate_arn)
 
         pipeline = pipelines.CodePipeline(
             self, "Pipeline",
@@ -83,6 +89,40 @@ class MmtPipelineStack(Stack):
                         # conditions={
                         #     "StringEquals": {'iam:ResourceTag/aws-cdk:bootstrap-role': 'deploy'}
                         # },
+                    ),
+                    iam.PolicyStatement(
+                        actions=["codestar-connections:UseConnection"],
+                        resources=["*"]
+                    ),
+                    iam.PolicyStatement(
+                        actions=[
+                            "appconfig:StartDeployment",
+                            "appconfig:GetDeployment",
+                            "appconfig:StopDeployment"
+                        ],
+                        resources=["*"]
+                    ),
+                    iam.PolicyStatement(
+                        actions=[
+                            "codecommit:*"
+                        ],
+                        resources=["*"]
+                    ),
+                    iam.PolicyStatement(
+                        actions=["ec2:DescribeAvailabilityZones"],
+                        resources=["*"]
+                    ),
+                    iam.PolicyStatement(
+                        actions=["cloudformation:*"],
+                        resources=["*"]
+                    ),
+                    iam.PolicyStatement(
+                        actions=["iam:*"],
+                        resources=["*"]
+                    ),
+                    iam.PolicyStatement(
+                        actions=["codebuild:*"],
+                        resources=["*"]
                     )
                 ],
                 build_environment=codebuild.BuildEnvironment(
@@ -90,11 +130,10 @@ class MmtPipelineStack(Stack):
             ),
             synth=pipelines.ShellStep(
                 "Synth",
-                input=pipelines.CodePipelineSource.git_hub(
+                input=pipelines.CodePipelineSource.connection(
                     repo_string="MAAP-Project/mmt",
                     branch=branch,
-                    authentication=core.SecretValue.secrets_manager(
-                        "/github.com/MAAP-Project/mmt", json_field="token")
+                    connection_arn=settings.codestar_connection_arn
                 ),
                 commands=[
                     "mkdir -p deployment/.cdk",
@@ -116,7 +155,14 @@ class MmtPipelineStack(Stack):
         )
 
         pipeline.add_stage(
-            MmtApp(self, id=f"{settings.stage}-mmt-app", stack_id=f"{settings.stage}-{settings.name}", env=env))
+            MmtApp(
+                self,
+                "ApplicationStack",
+                f"{settings.stage}-{settings.name}",
+                stack_id=f"{settings.stage}-mmt-app",
+                env=env
+            )
+        )
 
 
 class MmtStack(core.Stack):
@@ -337,7 +383,7 @@ class MmtStack(core.Stack):
         )
 
 class MmtApp(Stage):
-    def __init__(self, scope, id, *, stack_id, env=None, outdir=None):
+    def __init__(self, scope, id, stack_name, *, stack_id, env=None, outdir=None):
         super().__init__(scope, id, env=env,outdir=outdir)
 
         for key, value in {
@@ -350,8 +396,9 @@ class MmtApp(Stage):
                 core.Tags.of(self).add(key, value)
 
         MmtStack(
-            scope=self,
-            stack_id=stack_id,
+            self,
+            stack_id,
+            stack_name,
             cpu=settings.task_cpu,
             memory=settings.task_memory,
             mincount=settings.min_ecs_instances,
@@ -363,27 +410,30 @@ class MmtApp(Stage):
 
 app = core.App()
 
-# MmtPipelineStack(
-#     app, "PipelineStack",
-#     stack_name=f"{settings.stage}-mmt-pipeline",
-#     env=core.Environment(
-#         account=os.environ.get(
-#             "CDK_DEPLOY_ACCOUNT", os.environ["CDK_DEFAULT_ACCOUNT"]),
-#         region=os.environ.get("CDK_DEPLOY_REGION", os.environ["CDK_DEFAULT_REGION"]))
-# )
-
-MmtStack(
-    app,
-    "ApplicationStack",
-    f"{settings.stage}-maap-mmt",
-    cpu=settings.task_cpu,
-    memory=settings.task_memory,
-    mincount=settings.min_ecs_instances,
-    maxcount=settings.max_ecs_instances,
-    permissions=[],
-    env=core.Environment(
-        account=os.environ.get("CDK_DEPLOY_ACCOUNT", os.environ["CDK_DEFAULT_ACCOUNT"]),
-        region=os.environ.get("CDK_DEPLOY_REGION", os.environ["CDK_DEFAULT_REGION"]))
-)
+if settings.deployment_strategy == "pipeline":
+    MmtPipelineStack(
+        app, "PipelineStack",
+        stack_name=f"{settings.stage}-mmt-pipeline",
+        env=core.Environment(
+            account=os.environ.get(
+                "CDK_DEPLOY_ACCOUNT", os.environ["CDK_DEFAULT_ACCOUNT"]),
+            region=os.environ.get("CDK_DEPLOY_REGION", os.environ["CDK_DEFAULT_REGION"]))
+    )
+elif settings.deployment_strategy == "application":
+    MmtStack(
+        app,
+        "ApplicationStack",
+        f"{settings.stage}-{settings.name}",
+        cpu=settings.task_cpu,
+        memory=settings.task_memory,
+        mincount=settings.min_ecs_instances,
+        maxcount=settings.max_ecs_instances,
+        permissions=[],
+        env=core.Environment(
+            account=os.environ.get("CDK_DEPLOY_ACCOUNT", os.environ["CDK_DEFAULT_ACCOUNT"]),
+            region=os.environ.get("CDK_DEPLOY_REGION", os.environ["CDK_DEFAULT_REGION"]))
+    )
+else:
+    raise Exception(f"Unsupported value for deployment_strategy: {settings.deployment_strategy}")
 
 app.synth()
