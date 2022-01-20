@@ -277,6 +277,8 @@ class MmtStack(core.Stack):
             self, f"/{stack_name}/CMR_ROOT")
         task_env["MMT_ROOT"] = ssm.StringParameter.value_for_string_parameter(
             self, f"/{stack_name}/MMT_ROOT")
+        task_env["default_url"] = ssm.StringParameter.value_for_string_parameter(
+            self, f"/{stack_name}/MMT_HOST")
         task_env["CUMULUS_REST_API"] = ssm.StringParameter.value_for_string_parameter(
             self, f"/{stack_name}/CUMULUS_REST_API")
 

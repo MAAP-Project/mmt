@@ -124,6 +124,12 @@ aws ssm put-parameter \
     --overwrite \
     --name "/${MMT_STACK_STAGE}-maap-mmt/MMT_ROOT" \
     --value "https://mmt.${MMT_STACK_STAGE}.maap-project.org"
+
+aws ssm put-parameter \
+    --type "String" \
+    --overwrite \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/MMT_HOST" \
+    --value "mmt.${MMT_STACK_STAGE}.maap-project.org"
 ```
 
 ### 3. Set deployment configuration
