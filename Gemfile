@@ -88,6 +88,7 @@ gem 'browser'
 # bundle config --delete local.cmr_metadata_preview
 gem 'cmr_metadata_preview', git: 'https://git.earthdata.nasa.gov/scm/cmr/cmr_metadata_preview.git', ref: 'a63c41cadfa'
 
+gem 'aws-sdk-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
