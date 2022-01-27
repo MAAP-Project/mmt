@@ -69,7 +69,9 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV['default_url'], protocol: 'https' }
   # This domain has been configured to pass DMARC authentication.  Changing to a
   # domain which has not been will cause gmail to reject our e-mails
-  config.default_email_domain = 'earthdata.nasa.gov'
+  config.default_email_domain = 'mmt.dit.maap-project.org'
+
+  config.action_mailer.delivery_method = :ses
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
