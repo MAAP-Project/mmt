@@ -3,14 +3,14 @@ require 'libxml_to_hash'
 namespace :collections do
   desc 'Load a providers collections from SIT for local testing'
   task :replicate, [:provider, :page_size] => :environment do |_task, args|
-    args.with_defaults(provider: 'MMT_2')
+    args.with_defaults(provider: 'NASA_MAAP')
     args.with_defaults(page_size: 25)
 
     puts "Requesting #{args.page_size} #{args.provider} collections from SIT..."
 
     collections_ingested = 0
 
-    cmr_sit_connection = Faraday.new(url: 'https://cmr.sit.earthdata.nasa.gov')
+    cmr_sit_connection = Faraday.new(url: @config['cmr_root'])
     cmr_sit_response = cmr_sit_connection.get('/search/collections.umm-json', provider: args.provider, page_size: args.page_size) do |cmr_request|
       cmr_request.headers['Client-Id'] = 'MMT'
     end
@@ -29,7 +29,7 @@ namespace :collections do
         metadata_response = connection.get("search/collections.native?concept_id=#{collection_concept_id}") do |req|
           # Some providers require users be authenticated to view their collections, you can set an
           # environment variable with your token to access them
-          req.headers['Echo-token'] = ENV['CMR_SIT_TOKEN'] if ENV.key?('CMR_SIT_TOKEN')
+          req.headers['Echo-token'] = get_collections_token
         end
 
         if metadata_response.success?
@@ -83,8 +83,7 @@ namespace :collections do
     @cmr_client ||= Cmr::Client.client_for_environment(Rails.configuration.cmr_env, Rails.configuration.services)
   end
 
-  # For use in local CMR only. Any other environment will not recognize these tokens
-  def get_collections_token(admin: false)
-    admin ? 'ABC-1' : 'ABC-2'
+  def get_collections_token
+    ENV['CMR_URS_PASSWORD']
   end
 end

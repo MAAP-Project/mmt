@@ -125,6 +125,14 @@ class CollectionDraftsController < BaseDraftsController
 
     ingested_response = cmr_client.ingest_collection(draft.to_json, get_resource.provider_id, get_resource.native_id, token)
 
+    if draft['AdditionalAttributes']
+      dataset_status = draft['AdditionalAttributes'].find({'Name' => 'Dataset Status'}).first
+      if dataset_status and dataset_status['Value'] == 'MAAP User-Shared Data Product'
+        Rails.logger.info "\nTriggering ingest for #{draft['ShortName']}\n"
+        CumulusApi.trigger_ingest(get_resource.draft)
+      end
+    end
+
     if ingested_response.success?
       # set flash success, so it will appear before a warning message if there is one
       flash[:success] = I18n.t("controllers.draft.#{plural_resource_name}.publish.flash.success")

@@ -45,6 +45,11 @@ Rails.application.routes.draw do
       get 'urs_search'
     end
   end
+
+  namespace :api, constraints: { format: 'json' }  do
+    resource :collections, only: [:create]
+  end
+
   post '/invite_user' => 'groups#invite', as: 'invite_user'
   get '/accept_invite/:token' => 'groups#accept_invite', as: 'accept_invite'
 

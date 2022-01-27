@@ -107,7 +107,13 @@ aws ssm put-parameter \
     --type "String" \
     --overwrite \
     --name "/${MMT_STACK_STAGE}-maap-mmt/CUMULUS_REST_API" \
-    --value "https://1i4283wnch.execute-api.us-east-1.amazonaws.com/dev/"
+    --value "https://z4eaw8vft6.execute-api.us-west-2.amazonaws.com/dev/"
+
+aws ssm put-parameter \
+    --type "String" \
+    --overwrite \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/MMT_HOST" \
+    --value "mmt.${MMT_STACK_STAGE}.maap-project.org"
 ```
 
 In the `production` environment, there may be no value for `MMT_STACK_STAGE` in the hostname value (e.g. `cmr.maap-project.org`) or the value may be `ops` (e.g. `mmt.ops.maap-project.org`). Consult a MAAP team member to determine the appropriate value.
