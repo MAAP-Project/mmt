@@ -359,6 +359,12 @@ class MmtStack(core.Stack):
             port=f"{app_service_port}"
         )
 
+        ses_permission = iam.PolicyStatement(
+            resources=["*"],
+            actions=["ses:SendRawEmail"]
+        )
+        fargate_service.task_definition.task_role.add_to_policy(ses_permission)
+
         for perm in permissions:
             fargate_service.task_definition.task_role.add_to_policy(perm)
 
