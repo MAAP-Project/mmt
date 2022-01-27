@@ -69,7 +69,7 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV['default_url'], protocol: 'https' }
   # This domain has been configured to pass DMARC authentication.  Changing to a
   # domain which has not been will cause gmail to reject our e-mails
-  config.default_email_domain = 'mmt.dit.maap-project.org'
+  config.default_email_domain = ENV['default_url']
 
   config.action_mailer.delivery_method = :ses
 
