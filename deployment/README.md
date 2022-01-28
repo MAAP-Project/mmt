@@ -146,7 +146,8 @@ To set values for these settings, create an `.env` file and add a line for the v
 each setting (with the setting name prefixed by `MMT_STACK_`):
 
 ```env
-MMT_STACK_certificate_arn="arn:aws:acm:us-west-2:12345:certificate/abc123"
+MMT_STACK_certificate_arn="arn:aws:acm:us-west-2:xxx:certificate/xxx"
+MMT_STACK_deployment_strategy=application
 ```
 
 #### Optional config for Mission Cloud Platform (MCP) deployments
