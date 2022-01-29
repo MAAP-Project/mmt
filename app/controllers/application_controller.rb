@@ -4,7 +4,7 @@ class ApplicationController < ActionController::Base
   include PermissionChecking
 
   # Prevent CSRF attacks by raising an exception.
-  protect_from_forgery with: :exception
+  protect_from_forgery with: :exception, unless: -> { request.format.json? }
 
   before_action :ensure_user_is_logged_in
   before_action :setup_query

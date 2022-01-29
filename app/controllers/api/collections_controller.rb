@@ -1,7 +1,6 @@
 class Api::CollectionsController < Api::BaseController
   include ManageMetadataHelper
   include PiqToDraft
-  skip_authenticity_token
 
   def create
     message = 'Request params are not a valid collection draft.'
