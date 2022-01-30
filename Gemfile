@@ -58,6 +58,7 @@ gem 'factory_bot_rails'
 gem 'faker'
 gem 'figaro'
 gem 'font-awesome-rails'
+gem 'httparty'
 gem 'jquery-ui-rails'	# for $(document).tooltip()
 gem 'json-schema'
 gem 'kaminari'
