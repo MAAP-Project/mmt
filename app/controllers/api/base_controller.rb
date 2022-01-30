@@ -1,3 +1,3 @@
-class Api::BaseController < ApplicationController
-  skip_before_action :ensure_user_is_logged_in
+class Api::BaseController < ActionController::Base
+  protect_from_forgery with: :null_session
 end
