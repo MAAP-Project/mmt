@@ -69,8 +69,8 @@ For context, these are the expected values for the parameters:
 
 - `CMR_URS_PASSWORD`: The authorization token used for communicating with CMR
 - `SECRET_KEY_BASE`: String of random characters (at least 30 characters) used for verifying integrity of tokens
-- `URS_PASSWORD`: Password for the Earthdata application integrated with MMT (identified by `URS_USERNAME`, [possibly created in previous step](#creating-a-urs-application))
-- `URS_USERNAME`: Client ID for the Earthdata application integrated with MMT ([possibly created in previous step](#creating-a-urs-application))
+- `EARTHDATA_PASSWORD`: Password for the Earthdata application integrated with MMT (identified by `EARTHDATA_USERNAME`, [possibly created in previous step](#creating-a-urs-application))
+- `EARTHDATA_USERNAME`: Client ID for the Earthdata application integrated with MMT ([possibly created in previous step](#creating-a-urs-application))
 - `CUMULUS_REST_API`: URL of API gateway for Cumulus deployment
 - `CMR_ROOT`: Root of URL for CMR in this environment (e.g. `cmr.dit.maap-project.org`)
 - `MMT_ROOT`: Root of URL for MMT in this environment (e.g. `mmt.dit.maap-project.org`)
@@ -94,13 +94,13 @@ aws ssm put-parameter \
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${MMT_STACK_STAGE}-maap-mmt/URS_PASSWORD" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/EARTHDATA_PASSWORD" \
     --value "<the URS application password>"
 
 aws ssm put-parameter \
     --type "SecureString" \
     --overwrite \
-    --name "/${MMT_STACK_STAGE}-maap-mmt/URS_USERNAME" \
+    --name "/${MMT_STACK_STAGE}-maap-mmt/EARTHDATA_USERNAME" \
     --value "<the URS application ID>"
 
 aws ssm put-parameter \
@@ -180,7 +180,7 @@ export CDK_DEPLOY_ACCOUNT=$(aws sts get-caller-identity | jq .Account -r)
 export CDK_DEPLOY_REGION=$(aws configure get region)
 export MMT_STACK_STAGE="dit"
 
-$ npm run cdk deploy -- --require-approval never
+npm run cdk deploy -- --require-approval never
 ```
 
 The application stack creates a Postgres database, generates a docker image for the application, configures an ECS Task Definition and Service that uses that Task Definition, configures an application load balancer (ALB) to point to the ECS Service, and configures a custom DNS entry for the service.
