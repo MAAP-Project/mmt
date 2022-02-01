@@ -286,6 +286,10 @@ class MmtStack(core.Stack):
             self, id=f"/{stack_name}/CMR_URS_PASSWORD", parameter_name=f"/{stack_name}/CMR_URS_PASSWORD", version=1)
         secret_secret_key_base = ssm.StringParameter.from_secure_string_parameter_attributes(
             self, id=f"/{stack_name}/SECRET_KEY_BASE", parameter_name=f"/{stack_name}/SECRET_KEY_BASE", version=1)
+        secret_urs_username = ssm.StringParameter.from_secure_string_parameter_attributes(
+            self, id=f"/{stack_name}/URS_USERNAME", parameter_name=f"/{stack_name}/URS_USERNAME", version=1)
+        secret_urs_password = ssm.StringParameter.from_secure_string_parameter_attributes(
+            self, id=f"/{stack_name}/URS_PASSWORD", parameter_name=f"/{stack_name}/URS_PASSWORD", version=1)
         secret_earthdata_username = ssm.StringParameter.from_secure_string_parameter_attributes(
             self, id=f"/{stack_name}/EARTHDATA_USERNAME", parameter_name=f"/{stack_name}/EARTHDATA_USERNAME", version=1)
         secret_earthdata_password = ssm.StringParameter.from_secure_string_parameter_attributes(
@@ -311,6 +315,8 @@ class MmtStack(core.Stack):
                 "DATABASE_PASSWORD": ecs.Secret.from_secrets_manager(db_credentials_secret, "password"),
                 "CMR_URS_PASSWORD": ecs.Secret.from_ssm_parameter(secret_cmr_urs_password),
                 "SECRET_KEY_BASE": ecs.Secret.from_ssm_parameter(secret_secret_key_base),
+                "URS_PASSWORD": ecs.Secret.from_ssm_parameter(secret_urs_password),
+                "URS_USERNAME": ecs.Secret.from_ssm_parameter(secret_urs_username),
                 "EARTHDATA_PASSWORD": ecs.Secret.from_ssm_parameter(secret_earthdata_password),
                 "EARTHDATA_USERNAME": ecs.Secret.from_ssm_parameter(secret_earthdata_username),
             },
