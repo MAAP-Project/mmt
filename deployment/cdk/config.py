@@ -29,6 +29,7 @@ class StackSettings(pydantic.BaseSettings):
 
     # Necessary for HTTPS load balancer
     certificate_arn: str
+    additional_certificate_arn: Optional[str]
 
     permissions_boundary_name: Optional[str]
     vpc_id: Optional[str]

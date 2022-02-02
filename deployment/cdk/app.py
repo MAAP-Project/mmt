@@ -359,6 +359,18 @@ class MmtStack(core.Stack):
             certificate=certificate
         )
 
+        if settings.additional_certificate_arn is not None and settings.additional_certificate_arn != '':
+            for listener in fargate_service.load_balancer.listeners:
+                if listener.to_string() != http_listener.to_string():
+                    listener.add_certificates(
+                        'MmtHttpsCertificates',
+                        [certificatemanager.Certificate.from_certificate_arn(
+                            self,
+                            f"mmt-{settings.stage}-certificate2",
+                            settings.additional_certificate_arn
+                        )]
+                    )
+
         fargate_service.target_group.configure_health_check(
             path="/",
             healthy_http_codes="200,301",
