@@ -179,7 +179,7 @@ method supported by `pydantic`.
 If this application has been previously deployed to your target account, you should try [loading
 the existing deployment configuration from AWS SSM using the command below](#reading-deployment-configuration-from-aws-ssm).
 
-## Backing up deployment configuration to AWS SSM
+#### Backing up deployment configuration to AWS SSM
 
 To backup configuration from `.env` to SSM (where `<stage-name>` is `production`, `dit`, etc and should match the `MMT_STACK_stage` for your deployment):
 
@@ -190,7 +190,7 @@ python scripts/dotenv-to-ssm.py .env /<stage-name>/mmt
 If you make any configuration change to a deployment that you intend to be permanent, you
 should re-run the above command to back up the configuration to SSM.
 
-## Reading deployment configuration from AWS SSM
+#### Reading deployment configuration from AWS SSM
 
 To read previously saved deployment configuration from AWS SSM and save it to your local `.env`
 file:
