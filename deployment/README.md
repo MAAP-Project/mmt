@@ -165,7 +165,38 @@ export CDK_DEPLOY_REGION=$(aws configure get region)
 npm run cdk synth
 ```
 
-### 5. Deploy the application
+### 5. Set deployment configuration
+
+The list of supported deployment configuration values can be found in [`cdk/config.py`](./cdk/config.py).
+
+Configuration is managed via `pydantic` and can be specified as [outlined in their documentation](https://pydantic-docs.helpmanual.io/usage/settings/).
+
+Whether you are using environment variables or an `.env` file to specify configuration, the
+prefix for values should be `MMT_STACK_`. So to specify a value for the `stage` setting, you
+would specify a `MMT_STACK_stage` value as an environment variable, in `.env`, or via any other
+method supported by `pydantic`.
+
+## Backing up deployment configuration to AWS SSM
+
+To backup configuration from `.env` to SSM (where `<stage-name>` is `production`, `dit`, etc and should match the `MMT_STACK_stage` for your deployment):
+
+```shell
+python scripts/dotenv-to-ssm.py .env /<stage-name>/mmt
+```
+
+If you make any configuration change to a deployment that you intend to be permanent, you
+should re-run the above command to back up the configuration to SSM.
+
+## Reading deployment configuration from AWS SSM
+
+To read previously saved deployment configuration from AWS SSM and save it to your local `.env`
+file:
+
+```shell
+bash scripts/ssm-to-dotenv.sh /<stage-name>/mmt > .env
+```
+
+### 6. Deploy the application
 
 This deploy step will deploy a CloudFormation Stack for the MMT application.
 
@@ -179,7 +210,7 @@ npm run cdk deploy -- --require-approval never
 
 The application stack creates a Postgres database, generates a docker image for the application, configures an ECS Task Definition and Service that uses that Task Definition, configures an application load balancer (ALB) to point to the ECS Service, and configures a custom DNS entry for the service.
 
-### 6. Register redirect URIs with URS application
+### 7. Register redirect URIs with URS application
 
 For URS/Earthdata authentication to work with MMT, the following URIs need to be added to the Redirect URIs list:
 
