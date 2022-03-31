@@ -176,6 +176,9 @@ prefix for values should be `MMT_STACK_`. So to specify a value for the `stage` 
 would specify a `MMT_STACK_stage` value as an environment variable, in `.env`, or via any other
 method supported by `pydantic`.
 
+If this application has been previously deployed to your target account, you should try [loading
+the existing deployment configuration from AWS SSM using the command below](#reading-deployment-configuration-from-aws-ssm).
+
 ## Backing up deployment configuration to AWS SSM
 
 To backup configuration from `.env` to SSM (where `<stage-name>` is `production`, `dit`, etc and should match the `MMT_STACK_stage` for your deployment):
